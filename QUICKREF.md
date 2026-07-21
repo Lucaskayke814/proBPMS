@@ -154,7 +154,7 @@ backend/
 ### .env (após `cp .env.example .env`)
 ```
 SUPABASE_URL=https://cyolmcowhfhymemmxgrn.supabase.co
-SUPABASE_SECRET_KEY=sb_secret_IkxGFMeYY2GMSVQemViUEA_fzfIPykE
+SUPABASE_SECRET_KEY=your_secret_key_here
 JWT_SECRET=chave-segura-32-caracteres-aqui
 DB_URL=jdbc:postgresql://localhost:5432/probpms
 DB_USER=probpms

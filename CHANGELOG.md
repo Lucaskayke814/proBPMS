@@ -81,7 +81,7 @@ As seguintes variáveis foram configuradas e documentadas:
 ```
 SUPABASE_URL=https://cyolmcowhfhymemmxgrn.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_pLhl-nX5gTgwe9p4bqdtAQ_HKJvDQUo
-SUPABASE_SECRET_KEY=sb_secret_IkxGFMeYY2GMSVQemViUEA_fzfIPykE
+SUPABASE_SECRET_KEY=your_secret_key_here
 SUPABASE_JWKS_URL=https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1/.well-known/jwks.json
 SUPABASE_ISSUER=https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1
 ```

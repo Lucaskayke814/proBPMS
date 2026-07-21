@@ -18,7 +18,7 @@
 
 ```bash
 SUPABASE_URL="https://cyolmcowhfhymemmxgrn.supabase.co"
-SUPABASE_SERVICE_KEY="sb_secret_IkxGFMeYY2GMSVQemViUEA_fzfIPykE"
+SUPABASE_SERVICE_KEY="your_service_key_here"
 
 curl -X POST "$SUPABASE_URL/auth/v1/admin/users" \
   -H "apikey: $SUPABASE_SERVICE_KEY" \
