@@ -1,1 +1,0 @@
-CREATE SEQUENCE demand_code_sequence START WITH 1 INCREMENT BY 1;
