@@ -1,6 +1,5 @@
 package br.gov.mg.probpms.identity.application;
 
-import br.gov.mg.probpms.identity.infra.AppUser;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.JwkProviderBuilder;
@@ -9,34 +8,27 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.net.URI;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * JWT validation service for Supabase tokens.
+ * Only validates Supabase-issued JWTs via JWKS endpoint.
+ * Token issuance is exclusively handled by Supabase.
+ */
 @Service
 public class JwtService {
-  private final Algorithm fallbackAlgorithm;
   private final String issuer;
   private final long ttlSeconds;
   private final JwkProvider jwkProvider;
 
-  public JwtService(@Value("${security.jwt.secret:}") String secret,
+  public JwtService(
       @Value("${security.jwt.jwks-url:https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1/.well-known/jwks.json}") String jwksUrl,
       @Value("${security.jwt.issuer:https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1}") String issuer,
       @Value("${security.jwt.ttl-seconds:3600}") long ttlSeconds) throws Exception {
     this.issuer = issuer;
     this.ttlSeconds = ttlSeconds;
     this.jwkProvider = new JwkProviderBuilder(URI.create(jwksUrl).toURL()).cached(true).build();
-    this.fallbackAlgorithm = secret != null && !secret.isBlank() ? Algorithm.HMAC256(secret) : null;
-  }
-
-  public String issue(AppUser user) {
-    var now = Instant.now();
-    return JWT.create().withIssuer(issuer).withSubject(user.getId().toString()).withClaim("email", user.getEmail())
-        .withClaim("role", user.getRole().name()).withIssuedAt(Date.from(now))
-        .withExpiresAt(Date.from(now.plusSeconds(ttlSeconds)))
-        .sign(fallbackAlgorithm != null ? fallbackAlgorithm : Algorithm.HMAC256("local-dev"));
   }
 
   public DecodedJWT verify(String token) throws com.auth0.jwt.exceptions.JWTVerificationException {
