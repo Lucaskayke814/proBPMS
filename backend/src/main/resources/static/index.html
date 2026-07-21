@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>proBPMS | Gestão Contratual PRODEMGE</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1e40af;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --light: #f9fafb;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --bg: #f3f4f6;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    /* === LOGIN === */
+    .auth-container {
+      display: none;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    
+    .auth-container.active { display: flex; }
+    
+    .auth-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .auth-header .logo {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+    
+    .auth-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .auth-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 11px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn-primary:hover { background: var(--primary-dark); }
+    
+    #authStatus {
+      margin-top: 12px;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 6px;
+      min-height: 16px;
+    }
+    
+    #authStatus.error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    
+    /* === LAYOUT === */
+    .app-shell {
+      display: none;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+    
+    .app-shell.active { display: grid; }
+    
+    .sidebar {
+      background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo-section .icon { font-size: 28px; }
+    .logo-section .text .name { font-weight: 800; font-size: 18px; }
+    .logo-section .text .desc { font-size: 11px; opacity: 0.8; }
+    
+    .nav-menu { flex: 1; list-style: none; }
+    
+    .nav-section {
+      margin-bottom: 24px;
+    }
+    
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+      padding-left: 12px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      margin-bottom: 4px;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+    }
+    
+    .nav-item:hover {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+    
+    .nav-item.active {
+      background: rgba(255,255,255,0.25);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .nav-item .icon { font-size: 18px; }
+    
+    .nav-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .btn-logout {
+      width: 100%;
+      padding: 11px 12px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+    
+    .main-panel {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .topbar-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--light);
+      border-radius: 6px;
+    }
+    
+    .user-badge .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    
+    .user-badge .info {
+      font-size: 12px;
+    }
+    
+    .user-badge .info strong {
+      display: block;
+    }
+    
+    .user-badge .info small {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+    
+    .content-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+    
+    .page-header {
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .page-header h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn:hover { background: var(--primary-dark); }
+    .btn.secondary {
+      background: var(--light);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn.secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn.danger {
+      background: var(--danger);
+    }
+    .btn.danger:hover {
+      background: #dc2626;
+    }
+    .btn.sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .card h3 {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 8px;
+    }
+    
+    .card .value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    
+    .card .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .table-wrapper {
+      background: white;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    th {
+      background: var(--light);
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    tr:hover { background: var(--light); }
+    tr:last-child td { border-bottom: none; }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    
+    .badge.success { background: #d1fae5; color: #065f46; }
+    .badge.warning { background: #fef3c7; color: #92400e; }
+    .badge.danger { background: #fee2e2; color: #991b1b; }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal.active { display: flex; }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-close:hover { color: var(--text); }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .form-grid.full {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    @media (max-width: 1024px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position: fixed; left: 0; top: 0; height: 100%; z-index: 100; transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+    }
+    
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .modal-content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Panel -->
+<div id="authPanel" class="auth-container active">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">◈</div>
+      <h1>proBPMS</h1>
+      <p>Gestão Contratual PRODEMGE</p>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" placeholder="seu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input id="password" type="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary">Entrar</button>
+      <div id="authStatus"></div>
+    </form>
+  </div>
+</div>
+
+<!-- App Panel -->
+<div id="appShell" class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-section">
+      <div class="icon">◈</div>
+      <div class="text">
+        <span class="name">proBPMS</span>
+        <span class="desc">Gestão Contratual</span>
+      </div>
+    </div>
+    
+    <nav class="nav-menu">
+      <div class="nav-section">
+        <div class="nav-section-title">Aplicação</div>
+        <a class="nav-item active" data-tab="dashboard">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a class="nav-item" data-tab="contracts">
+          <span class="icon">📋</span> Contratos
+        </a>
+        <a class="nav-item" data-tab="agencies">
+          <span class="icon">🏛️</span> Órgãos Anuentes
+        </a>
+        <a class="nav-item" data-tab="demands">
+          <span class="icon">🎯</span> Demandas
+        </a>
+        <a class="nav-item" data-tab="financial">
+          <span class="icon">💰</span> Financeiro
+        </a>
+        <a class="nav-item" data-tab="operational">
+          <span class="icon">⚙️</span> Operacional
+        </a>
+      </div>
+    </nav>
+    
+    <div class="nav-footer">
+      <button id="logoutBtn" class="btn-logout">🚪 Sair</button>
+    </div>
+  </aside>
+  
+  <!-- Main Content -->
+  <div class="main-panel">
+    <header class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="user-badge">
+          <div class="avatar" id="userAvatar">U</div>
+          <div class="info">
+            <small>Conectado como</small>
+            <strong id="userEmail">usuário</strong>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <div class="content-panel">
+      
+      <!-- Dashboard Tab -->
+      <div id="dashboard" class="tab-content active">
+        <div class="page-header">
+          <div>
+            <h2>Bem-vindo</h2>
+            <p>Visão geral do sistema de gestão contratual</p>
+          </div>
+        </div>
+        
+        <div class="cards-grid">
+          <div class="card">
+            <h3>Status</h3>
+            <div class="value">✓</div>
+            <div class="hint">API respondendo</div>
+          </div>
+          <div class="card">
+            <h3>Contratos</h3>
+            <div class="value" id="countContracts">0</div>
+            <div class="hint">cadastrados</div>
+          </div>
+          <div class="card">
+            <h3>Órgãos</h3>
+            <div class="value" id="countAgencies">0</div>
+            <div class="hint">vinculados</div>
+          </div>
+          <div class="card">
+            <h3>Demandas</h3>
+            <div class="value" id="countDemands">0</div>
+            <div class="hint">em aberto</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contracts Tab -->
+      <div id="contracts" class="tab-content">
+        <div class="page-header">
+          <div>
+            <h2>Contratos</h2>
+            <p>Gestão de contratos do PRODEMGE</p>
+          </div>
+          <button class="btn" onclick="openContractModal()">+ Novo</button>
+        </div>
+        
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Ano</th>
+                <th>Objeto</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="contractsTable">
+              <tr><td colspan="6" style="text-align: center; padding: 40px;">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Agencies Tab -->
+      <div id="agencies" class="tab-content">
+        <div class="page-header">
+          <div>
+            <h2>Órgãos Anuentes</h2>
+            <p>Gestão de órgãos vinculados</p>
+          </div>
+          <button class="btn" onclick="openAgencyModal()">+ Novo</button>
+        </div>
+        
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Sigla</th>
+                <th>Contato</th>
+                <th>E-mail</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agenciesTable">
+              <tr><td colspan="5" style="text-align: center; padding: 40px;">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Demands Tab -->
+      <div id="demands" class="tab-content">
+        <div class="page-header">
+          <div>
+            <h2>Demandas</h2>
+            <p>Registro de demandas e solicitações</p>
+          </div>
+          <button class="btn" onclick="alert('Em breve')">+ Novo</button>
+        </div>
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <p>Demandas em breve</p>
+        </div>
+      </div>
+      
+      <!-- Financial Tab -->
+      <div id="financial" class="tab-content">
+        <div class="page-header">
+          <div>
+            <h2>Movimentação Financeira</h2>
+            <p>Empenhos, liquidações e pagamentos</p>
+          </div>
+          <button class="btn" onclick="alert('Em breve')">+ Novo</button>
+        </div>
+        <div class="empty-state">
+          <div class="icon">💰</div>
+          <p>Financeiro em breve</p>
+        </div>
+      </div>
+      
+      <!-- Operational Tab -->
+      <div id="operational" class="tab-content">
+        <div class="page-header">
+          <div>
+            <h2>Operacional</h2>
+            <p>Gestão operacional do sistema</p>
+          </div>
+        </div>
+        <div class="empty-state">
+          <div class="icon">⚙️</div>
+          <p>Painel operacional em breve</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Novo/Editar Contrato -->
+<div id="contractModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="contractModalTitle">Novo Contrato</h2>
+      <button class="modal-close" onclick="closeContractModal()">✕</button>
+    </div>
+    
+    <form id="contractForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Número *</label>
+          <input type="text" id="contractNumber" placeholder="CNT-2026-001" required>
+        </div>
+        <div class="form-group">
+          <label>Ano *</label>
+          <input type="number" id="contractYear" placeholder="2026" required>
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Descrição do Objeto *</label>
+          <textarea id="contractDescription" placeholder="Descreva o objeto" required></textarea>
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Fornecedor *</label>
+          <input type="text" id="contractSupplier" placeholder="Nome do fornecedor" required>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Valor Total (R$) *</label>
+          <input type="number" id="contractTotal" placeholder="0,00" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Status *</label>
+          <select id="contractStatus" required>
+            <option value="">Selecionar</option>
+            <option value="ACTIVE">Ativo</option>
+            <option value="PAUSED">Pausado</option>
+            <option value="FINISHED">Finalizado</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Data Início</label>
+          <input type="date" id="contractStart">
+        </div>
+        <div class="form-group">
+          <label>Data Término</label>
+          <input type="date" id="contractEnd">
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Gestor</label>
+          <input type="text" id="contractManager" placeholder="Nome do gestor">
+        </div>
+        <div class="form-group">
+          <label>Fiscal</label>
+          <input type="text" id="contractFiscal" placeholder="Nome do fiscal">
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="contractNotes" placeholder="Observações"></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" onclick="closeContractModal()">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Novo/Editar Órgão -->
+<div id="agencyModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="agencyModalTitle">Novo Órgão Anuente</h2>
+      <button class="modal-close" onclick="closeAgencyModal()">✕</button>
+    </div>
+    
+    <form id="agencyForm">
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Nome *</label>
+          <input type="text" id="agencyName" placeholder="Nome do órgão" required>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Sigla *</label>
+          <input type="text" id="agencyAcronym" placeholder="SIGLA" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="tel" id="agencyPhone" placeholder="(31) 0000-0000">
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Contato Responsável</label>
+          <input type="text" id="agencyContact" placeholder="Nome">
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="agencyEmail" placeholder="contato@orgao.gov.br">
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Valor Disponível (R$)</label>
+          <input type="number" id="agencyAmount" placeholder="0,00" step="0.01">
+        </div>
+      </div>
+      
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="agencyNotes" placeholder="Observações"></textarea>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn secondary" onclick="closeAgencyModal()">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

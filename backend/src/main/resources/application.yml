@@ -1,0 +1,35 @@
+spring:
+  application.name: probpms-api
+  datasource:
+    url: ${SUPABASE_DB_URL:${DB_URL:jdbc:postgresql://localhost:5432/probpms}}
+    username: ${DB_USER:probpms}
+    password: ${DB_PASSWORD:probpms_dev}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+  data:
+    web:
+      pageable:
+        max-page-size: 100
+server:
+  error:
+    include-message: never
+security:
+  jwt:
+    secret: ${JWT_SECRET:substitua-esta-chave-local-de-desenvolvimento-com-32-caracteres}
+    issuer: ${SUPABASE_ISSUER:https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1}
+    ttl-seconds: 3600
+    jwks-url: ${SUPABASE_JWKS_URL:https://cyolmcowhfhymemmxgrn.supabase.co/auth/v1/.well-known/jwks.json}
+    supabase-url: ${SUPABASE_URL:https://cyolmcowhfhymemmxgrn.supabase.co}
+    supabase-publishable-key: ${SUPABASE_PUBLISHABLE_KEY:sb_publishable_pLhl-nX5gTgwe9p4bqdtAQ_HKJvDQUo}
+    supabase-secret-key: ${SUPABASE_SECRET_KEY:sb_secret_IkxGFMeYY2GMSVQemViUEA_fzfIPykE}
+bootstrap:
+  admin:
+    # Preencha somente para criar o primeiro gestor em uma base vazia.
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
